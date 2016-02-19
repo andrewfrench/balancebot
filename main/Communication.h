@@ -1,25 +1,41 @@
 #include <SPI.h>
 #include "RF24.h"
 
-bool radioNumber = 0;
-
+/*
 class Communication {
 public:
   bool connect(void);
   byte receive(void);
+  Communication();
 private:
-  static bool radioNumber = 0;
-  static byte robotAddress[6] = "ROBOT";
-  static byte contrAddress[6] = "CONTR";
-  RF24 radio(7, 8);
+  bool radioNumber;
+  byte robotAddress[6] = "ROBOT";
+  byte contrAddress[6] = "CONTR";
 };
+*/
 
-bool Communication::connect() {
+RF24 radio(7, 8);
+const bool radioNumber = 0;
+const byte robotAddress[6] = "ROBOT";
+const byte contrAddress[6] = "CONTR";
+
+/*
+Communication::Communication(void) {
+  RF24 radio(7, 8);
+  radioNumber = 0;
+  robotAddress = "ROBOT";
+  contrAddress = "CONTR";
+}
+*/
+
+bool comm_connect() {
   /*
     Returns true if connection was successful
     Returns false if connection was unsuccessful
   */
 
+  Serial.println("Initializing wireless communication...");
+  
   // Begin the radio service
   radio.begin();
 
@@ -37,9 +53,11 @@ bool Communication::connect() {
 
   // Start listening
   radio.startListening();
+
+  Serial.println("Wireless communication initialized.");
 }
 
-byte Communication::receive() {
+byte comm_receive() {
   /*
     Listens for wireless communication and returns the byte
   */
@@ -57,3 +75,4 @@ byte Communication::receive() {
     return received;
   }
 }
+
