@@ -10,8 +10,8 @@ void motors_init() {
 }
 
 void motors_updateSpeed(float duty_cycle_left, float duty_cycle_right) {
-  md.setM1Speed();
-  md.setM2Speed();
+  md.setM1Speed(duty_cycle_left);
+  md.setM2Speed(duty_cycle_right);
 }
 
 void motors_stopMotors() {

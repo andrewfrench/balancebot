@@ -10,7 +10,7 @@ long cm;
 
 void ultrasonic_init() {
   Serial.println("Beginning ultrasonic initialization.");
-  
+
   // Create timing interrupts
   cli();
   TCCR1A = 0;
@@ -33,6 +33,10 @@ void ultrasonic_init() {
 
 long ultrasonic_getDistance() {
   cm = (duration / 2) / 29.1;
+
+  Serial.print("Reading distance: ");
+  Serial.print(cm);
+  Serial.println("cm");
 
   return cm;
 }

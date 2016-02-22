@@ -10,23 +10,15 @@ main.ino
 The top-level control file.
 
 Ensure that all required libraries are installed on your development machine.
-We will probably need to migrate to the Arduino Mega, because we have a lot of pin
-collisions as is.
-
-Use the current function definitions, and Andrew will create a class structure
-next week.
 
  */
 
 void setup() {
-  // Initialize serial communications
-  Serial.begin(115200);
+  // Initialize wireless communications
+  comm_connect();
 
   // Initialize motors
   motors_init();
-  
-  // Initialize wireless communications
-  comm_connect();
 
   // Wait for "go" signal
   while(1) {
@@ -37,7 +29,7 @@ void setup() {
 
 void loop() {
   // use motors_updateSpeed(float duty_cycle_left, float duty_cycle_right) to update motor speed
-  
+
   // Detect red
     // Angle right
 
@@ -45,15 +37,14 @@ void loop() {
     // Angle left
 
   // Detect blue
-  float * colors = colors_getColors();
-  if(colors[2] < 2) {
+  if(colors_getBlue() < 2.0) {
     motors_stopMotors();
   }
 
   // Detect object ultrasonically
   long cm = ultrasonic_getDistance();
   if(cm < 5) {
+    // Stop robot
     motors_stopMotors();
   }
-    // Stop robot
 }

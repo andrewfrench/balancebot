@@ -1,33 +1,53 @@
 #include <Wire.h>
-#include <Sparkfun_APDS9960.h>
+#include <SparkFun_APDS9960.h>
 
 // This will need to change to another interrupt pin
 #define APDS9960_INT  2
 
 // Define constants
 #define PROX_INT_HIGH   0
-#define PROX_INT_LOW    0 
+#define PROX_INT_LOW    0
 
-SparkFun_APDS9960 apds = SparkFun_APDS9960();
-uint8_t proximity_data = 0;
-int isr_flag = 0;[
-uint16_t ambient_light = 0;
-uint16_t red_light = 0;
-uint16_t green_light = 0;
-uint16_t blue_light = 0;
+// class Colors {
+// public:
+//   Colors(void);
+//   float getRed(void);
+//   float getGreen(void);
+//   float getBlue(void);
+// private:
+//   uint16_t ambient_light;
+//   uint16_t red_light;
+//   uint16_t green_light;
+//   uint16_t blue_light;
+//   SparkFun_APDS9960 apds;
+//   uint8_t proximity_data;
+// };
+
+uint16_t ambient_light;
+uint16_t red_light;
+uint16_t green_light;
+uint16_t blue_light;
+uint8_t proximity_data;
+SparkFun_APDS9960 apds;
 
 void colors_init() {
-  // Set LED as output
-  pinMode(LED_PIN, OUTPUT);
-  pinMode(APDS9960_INT, INPUT);
-  
-  // Initialize Serial port
-  Serial.begin(9600);
+  // Report status serially
   Serial.println("Initializing color sensor...");
-  
-  // Initialize interrupt service routine
-  attachInterrupt(0, interruptRoutine, FALLING);
-  
+
+  // Set LED as output
+  pinMode(APDS9960_INT, INPUT);
+
+  // Initialize sensor
+  apds = SparkFun_APDS9960();
+
+  // Initialize variables
+  ambient_light = 0;
+  red_light = 0;
+  green_light = 0;
+  blue_light = 0;
+  proximity_data = 0;
+
+
   // Initialize APDS-9960 (configure I2C and initial values)
   if ( apds.init() ) {
     Serial.println(F("APDS-9960 initialization complete"));
@@ -43,12 +63,12 @@ void colors_init() {
   }
 
   delay(500);
-  
+
   // Adjust the Proximity sensor gain
   if ( !apds.setProximityGain(PGAIN_2X) ) {
     Serial.println(F("Something went wrong trying to set PGAIN"));
   }
-  
+
   // Set proximity interrupt thresholds
   if ( !apds.setProximityIntLowThreshold(PROX_INT_LOW) ) {
     Serial.println(F("Error writing low threshold"));
@@ -56,7 +76,7 @@ void colors_init() {
   if ( !apds.setProximityIntHighThreshold(PROX_INT_HIGH) ) {
     Serial.println(F("Error writing high threshold"));
   }
-  
+
   // Start running the APDS-9960 proximity sensor (interrupts)
   if ( apds.enableProximitySensor(true) ) {
     Serial.println(F("Proximity sensor is now running"));
@@ -67,18 +87,32 @@ void colors_init() {
   Serial.println("Color sensor initialization process complete.");
 }
 
-float * colors_getColors() {
-  float colors[3];
-
+float colors_getRed() {
   apds.readAmbientLight(ambient_light);
   apds.readRedLight(red_light);
-  apds.readGreenLight(green_light);
-  apds.readBlueLight(blue_light);
 
-  colors[0] = (ambient_light * 1.0) / (red_light * 1.0);
-  colors[1] = (ambient_light * 1.0) / (green_light * 1.0);
-  colors[2] = (ambient_light * 1.0) / (blue_light * 1.0);
+  Serial.print("Reading red: ");
+  Serial.println(red_light);
 
-  return colors;
+  return (ambient_light * 1.0) / (red_light * 1.0);
 }
 
+float colors_getGreen() {
+  apds.readAmbientLight(ambient_light);
+  apds.readGreenLight(green_light);
+
+  Serial.print("Reading green: ");
+  Serial.println(green_light);
+
+  return (ambient_light * 1.0) / (green_light * 1.0);
+}
+
+float colors_getBlue() {
+  apds.readAmbientLight(ambient_light);
+  apds.readBlueLight(blue_light);
+
+  Serial.print("Reading blue: ");
+  Serial.println(blue_light);
+
+  return (ambient_light * 1.0) / (blue_light * 1.0);
+}
