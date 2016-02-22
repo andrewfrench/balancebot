@@ -8,14 +8,10 @@ Encoder motorEncoderRight(21, 20); // Corresponds to m2
 
 // Declare variables for time functions
 const long waitTime = 1000;
-//long timeLastLeft = 0;
-//long timeLastRight = 0;
 long timeLast[] = {0, 0};
 long timeDelta;
 
 // Declare variables for position functions
-//long lastPosLeft = 0;
-//long lastPosRight = 0;
 long lastPosition[] = {0, 0};
 long posDiff;
 
