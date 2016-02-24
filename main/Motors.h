@@ -6,6 +6,7 @@ Encoder left_encoder(3, 2);
 Encoder right_encoder(5, 4);
 
 void motors_init() {
+  Serial.println("Initializing motors");
   md.init();
 }
 
@@ -18,4 +19,3 @@ void motors_stopMotors() {
   md.setM1Speed(0);
   md.setM2Speed(0);
 }
-

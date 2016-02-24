@@ -8,21 +8,6 @@
 #define PROX_INT_HIGH   0
 #define PROX_INT_LOW    0
 
-// class Colors {
-// public:
-//   Colors(void);
-//   float getRed(void);
-//   float getGreen(void);
-//   float getBlue(void);
-// private:
-//   uint16_t ambient_light;
-//   uint16_t red_light;
-//   uint16_t green_light;
-//   uint16_t blue_light;
-//   SparkFun_APDS9960 apds;
-//   uint8_t proximity_data;
-// };
-
 uint16_t ambient_light;
 uint16_t red_light;
 uint16_t green_light;
@@ -46,7 +31,6 @@ void colors_init() {
   green_light = 0;
   blue_light = 0;
   proximity_data = 0;
-
 
   // Initialize APDS-9960 (configure I2C and initial values)
   if ( apds.init() ) {

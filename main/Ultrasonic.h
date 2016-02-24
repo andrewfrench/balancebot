@@ -1,12 +1,12 @@
 #include <NewPing.h>
 
-NewPing sonar(12, 11, 200);
 
-int triggerPin = 11;
-int echoPin = 12;
-int LEDPin = 8;
+int triggerPin = 5;
+int echoPin = 3;
 volatile long duration;
 long cm;
+
+NewPing sonar(echoPin, triggerPin, 200);
 
 void ultrasonic_init() {
   Serial.println("Beginning ultrasonic initialization.");
@@ -25,7 +25,6 @@ void ultrasonic_init() {
   // Set up input and output pins
   pinMode(triggerPin, OUTPUT);
   pinMode(echoPin, INPUT);
-  pinMode(LEDPin, OUTPUT);
 
   // Begin serial communications
   Serial.println("Ultrasonic initialization complete.");
