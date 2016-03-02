@@ -25,10 +25,10 @@ void setup() {
   motors_init();
 
   // Initialize color sensor
-  // colors_init();
+  colors_init();
 
   // Initialize ultrasonic distance sensor
-  // ultrasonic_init();
+  ultrasonic_init();
 
   // Wait for "go" signal
   comm_waitForGo();

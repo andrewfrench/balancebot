@@ -5,7 +5,7 @@
 bool radioNumber = 1;
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
-RF24 radio(7,8);
+RF24 radio(9, 53);
 /**********************************************************/
                                                                            // Topology
 byte addresses[][6] = {"abcde","edcba"};              // Radio pipe addresses for the 2 nodes to communicate.
