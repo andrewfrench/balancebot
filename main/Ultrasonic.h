@@ -3,7 +3,7 @@
 /*
 Define obstacle detection threshold
 */
-#define OBSTACLE_THRESHOLD  10
+#define OBSTACLE_THRESHOLD 10
 
 int triggerPin = 5;
 int echoPin = 3;

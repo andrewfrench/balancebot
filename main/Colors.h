@@ -5,9 +5,9 @@
 Define color detection thresholds
 These should be floats for easy comparison with sensor output.
 */
-#define FINISH_LINE_THRESHOLD 400.0
-#define RED_THRESHOLD 300.0
-#define GREEN_THRESHOLD 300.0
+const float FINISH_LINE_THRESHOLD = 400.0;
+const float RED_THRESHOLD = 300.0;
+const float GREEN_THRESHOLD = 300.0;
 
 // This will need to change to another interrupt pin
 #define APDS9960_INT  2
@@ -110,5 +110,5 @@ float colors_getBlue() {
 }
 
 bool colors_finishLineDetected() {
-  return (colors_getBlue > FINISH_LINE_THRESHOLD);
+  return (colors_getBlue() > FINISH_LINE_THRESHOLD);
 }
