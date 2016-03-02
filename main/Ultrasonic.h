@@ -1,5 +1,9 @@
 #include <NewPing.h>
 
+/*
+Define obstacle detection threshold
+*/
+#define OBSTACLE_THRESHOLD  10
 
 int triggerPin = 5;
 int echoPin = 3;
@@ -38,6 +42,10 @@ long ultrasonic_getDistance() {
   Serial.println("cm");
 
   return cm;
+}
+
+bool ultrasonic_obstacleDetected() {
+  return (ultrasonic_getDistance() < OBSTACLE_THRESHOLD);
 }
 
 ISR(TIMER1_COMPA_vect) {

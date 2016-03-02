@@ -1,16 +1,17 @@
 /*
-Dec 2014 - TMRh20 - Updated
-Derived from examples by J. Coliz < >
+
+Here's how this works:
+
+The program is clearly based off of the RF24 example code, and functions
+basically the same way.  The program will begin in the 'Receive' mode,
+and you'll have to enter 'T' to switch to 'Transmit' mode.  Once in 'Transmit'
+mode, the program will repeatedly send the 'Go' command (integer 27) to the
+robot, which should be continually listening for this very signal.  The robot
+will only accept one such signal before continuing to execute the rest of its
+code, so there's no danger in letting the base station sit and send the signal.
+
 */
-/**
-* Example for efficient call-response using ack-payloads
-*
-* This example continues to make use of all the normal functionality of the radios including
-* the auto-ack and auto-retry features, but allows ack-payloads to be written optionlly as well.
-* This allows very fast call-response communication, with the responding radio never having to
-* switch out of Primary Receiver mode to send back a payload, but having the option to switch to
-* primary transmitter if wanting to initiate communication instead of respond to a commmunication.
-*/
+
 #include <SPI.h>
 #include "RF24.h"
 /****************** User Config ***************************/

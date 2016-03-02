@@ -15,7 +15,7 @@ void motors_updateSpeed(float duty_cycle_left, float duty_cycle_right) {
   md.setM2Speed(duty_cycle_right);
 }
 
-void motors_stopMotors() {
+void motors_stopRobot() {
   md.setM1Speed(0);
   md.setM2Speed(0);
 }

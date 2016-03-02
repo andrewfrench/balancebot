@@ -10,7 +10,7 @@ RF24 radio(7,8);
                                                                            // Topology
 byte addresses[][6] = {"abcde","edcba"};              // Radio pipe addresses for the 2 nodes to communicate.
 
-void comm_connect(){
+void comm_init(){
   // Setup serial communication for debugging
   Serial.begin(115200);
 

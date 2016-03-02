@@ -1,6 +1,14 @@
 #include <Wire.h>
 #include <SparkFun_APDS9960.h>
 
+/*
+Define color detection thresholds
+These should be floats for easy comparison with sensor output.
+*/
+#define FINISH_LINE_THRESHOLD 400.0
+#define RED_THRESHOLD 300.0
+#define GREEN_THRESHOLD 300.0
+
 // This will need to change to another interrupt pin
 #define APDS9960_INT  2
 
@@ -99,4 +107,8 @@ float colors_getBlue() {
   Serial.println(blue_light);
 
   return (ambient_light * 1.0) / (blue_light * 1.0);
+}
+
+bool colors_finishLineDetected() {
+  return (colors_getBlue > FINISH_LINE_THRESHOLD);
 }
