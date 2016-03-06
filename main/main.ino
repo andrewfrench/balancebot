@@ -34,6 +34,8 @@ void setup() {
   comm_waitForGo();
 
   Serial.println("Executing rest of code...");
+
+  motors_stopRobot();
 }
 
 void loop() {
@@ -47,7 +49,7 @@ void loop() {
 
 /*---------------------Controls----------------------*/
 
-  motors_setMotorVelocity(currentMotor, desiredAngularVelocity[currentMotor]);
-  motors_changeCurrentMotor();
+  // motors_setMotorVelocity(currentMotor, desiredAngularVelocity[currentMotor]);
+  // motors_changeCurrentMotor();
 
 }

@@ -4,7 +4,7 @@
 // Set radioNumber to 1, the base station will be 0.
 bool radioNumber = 1;
 
-/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
+/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 53 */
 RF24 radio(9, 53);
 /**********************************************************/
                                                                            // Topology
