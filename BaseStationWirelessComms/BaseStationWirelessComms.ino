@@ -53,7 +53,6 @@ void loop(void) {
   if (role == role_ping_out){ // Radio is in ping mode
     byte sendByte = 27;
     byte gotByte; // Initialize a variable for the incoming response
-    maniacbug@ymail.com
     radio.stopListening(); // First, stop listening so we can talk.
     Serial.print(F("Now sending ")); // Use a simple byte counter as payload
     Serial.println(sendByte);

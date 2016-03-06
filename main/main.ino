@@ -2,8 +2,6 @@
 #include "Ultrasonic.h"
 #include "Motors.h"
 #include "Colors.h"
-#include <Encoder.h>
-#include <DualMC33926MotorShield.h>
 
 
 /*
@@ -31,25 +29,30 @@ void setup() {
   ultrasonic_init();
 
   // Wait for "go" signal
-  comm_waitForGo();
+  // comm_waitForGo();
 
-  Serial.println("Executing rest of code...");
+  // Serial.println("Executing rest of code...");
 
-  motors_stopRobot();
+  // motors_stopRobot();
 }
 
 void loop() {
-  if(ultrasonic_obstacleDetected()) {
-    motors_stopRobot();
-  }
-
-  if(colors_finishLineDetected()) {
-    motors_stopRobot();
-  }
-
-/*---------------------Controls----------------------*/
+  // if(ultrasonic_obstacleDetected()) {
+  //   motors_stopRobot();
+  // }
+  //
+  // if(colors_finishLineDetected()) {
+  //   motors_stopRobot();
+  // }
 
   // motors_setMotorVelocity(currentMotor, desiredAngularVelocity[currentMotor]);
   // motors_changeCurrentMotor();
+  
+  ultrasonic_getDistance();
 
+  colors_getRed();
+  colors_getBlue();
+  colors_getGreen();
+
+  delay(500);
 }

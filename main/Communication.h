@@ -14,6 +14,8 @@ void comm_init(){
   // Setup serial communication for debugging
   Serial.begin(115200);
 
+  Serial.println("Initializing communication.");
+
   // Setup and configure radio
   radio.begin();
 
@@ -31,6 +33,8 @@ void comm_init(){
 
   // radio.writeAckPayload(1,&counter,1);          // Pre-load an ack-paylod into the FIFO buffer for pipe 1
   //radio.printDetails();
+
+  Serial.println("Communication initialized.");
 }
 
 byte comm_waitForGo() {

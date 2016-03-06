@@ -6,11 +6,14 @@
  // Instantiate motor driver and encoder objects
 DualMC33926MotorShield md;
 Encoder motorEncoderLeft(18, 19); // Corresponds to m1
-Encoder motorEncoderRight(21,20); // Corresponds to m2
+Encoder motorEncoderRight(2,3); // Corresponds to m2
 
 void motors_init() {
-  Serial.println("Initializing motors");
+  Serial.println("Initializing motors.");
   md.init();
+  md.setM1Speed(0);
+  md.setM2Speed(0);
+  Serial.println("Motors initialized.");
 }
 
 void motors_updateSpeed(float duty_cycle_left, float duty_cycle_right) {

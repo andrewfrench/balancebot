@@ -21,17 +21,14 @@ uint16_t red_light;
 uint16_t green_light;
 uint16_t blue_light;
 uint8_t proximity_data;
-SparkFun_APDS9960 apds;
+SparkFun_APDS9960 apds = SparkFun_APDS9960();
 
 void colors_init() {
   // Report status serially
-  Serial.println("Initializing color sensor...");
+  Serial.println("Initializing color sensor.");
 
   // Set LED as output
-  pinMode(APDS9960_INT, INPUT);
-
-  // Initialize sensor
-  apds = SparkFun_APDS9960();
+  // pinMode(APDS9960_INT, INPUT);
 
   // Initialize variables
   ambient_light = 0;
@@ -76,7 +73,7 @@ void colors_init() {
     Serial.println(F("Something went wrong during sensor init!"));
   }
 
-  Serial.println("Color sensor initialization process complete.");
+  Serial.println("Color sensor initialized.");
 }
 
 float colors_getRed() {
