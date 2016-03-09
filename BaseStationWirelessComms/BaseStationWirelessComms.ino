@@ -17,6 +17,9 @@ code, so there's no danger in letting the base station sit and send the signal.
 /****************** User Config ***************************/
 /*** Set this radio as radio number 0 or 1 ***/
 bool radioNumber = 0;
+
+bool signalSent = false;
+
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
 RF24 radio(7,8);
 /**********************************************************/
@@ -72,6 +75,8 @@ void loop(void) {
           Serial.print(timer-time);
           Serial.println(F(" microseconds"));
           counter++; // Increment the counter variable
+
+          signalSent = true;
         }
       }
     }else{ Serial.println(F("Sending failed.")); } // If no ack response, sending failed
@@ -105,5 +110,9 @@ void loop(void) {
       counter = 1;
       radio.writeAckPayload(1,&counter,1);
     }
+  }
+
+  if(signalSent) {
+    while(1);
   }
 }

@@ -3,10 +3,10 @@
 /*
 Define obstacle detection threshold
 */
-#define OBSTACLE_THRESHOLD 10
+#define OBSTACLE_THRESHOLD 8
 
 int triggerPin = 5;
-int echoPin = 4;
+int echoPin = 11;
 volatile long duration;
 long cm;
 
@@ -34,13 +34,13 @@ long ultrasonic_getDistance() {
 
   cm = (duration / 2) / 29.1;
 
-  Serial.print("Reading distance: ");
-  Serial.print(cm);
-  Serial.println("cm");
+  // Serial.print("Reading distance: ");
+  // Serial.print(cm);
+  // Serial.println("cm");
 
   return cm;
 }
 
 bool ultrasonic_obstacleDetected() {
-  return (ultrasonic_getDistance() < OBSTACLE_THRESHOLD);
+  return (ultrasonic_getDistance() <= OBSTACLE_THRESHOLD);
 }

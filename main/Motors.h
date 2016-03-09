@@ -6,19 +6,20 @@
  // Instantiate motor driver and encoder objects
 DualMC33926MotorShield md;
 Encoder motorEncoderLeft(18, 19); // Corresponds to m1
-Encoder motorEncoderRight(2,3); // Corresponds to m2
+Encoder motorEncoderRight(2, 3); // Corresponds to m2
 
 void motors_init() {
-  Serial.println("Initializing motors.");
+
   md.init();
   md.setM1Speed(0);
   md.setM2Speed(0);
-  Serial.println("Motors initialized.");
+
 }
 
-void motors_updateSpeed(float duty_cycle_left, float duty_cycle_right) {
-  md.setM1Speed(duty_cycle_left);
-  md.setM2Speed(duty_cycle_right);
+void motors_manualUpdateSpeed(int left, int right) {
+  right = -right;
+  md.setM1Speed(left);
+  md.setM2Speed(right);
 }
 
 void motors_stopRobot() {
@@ -46,6 +47,8 @@ float errorProportional;
 float errorIntegral[] = {0, 0};
 float errorIntegralLimit = 2;
 float percentPower;
+float previousPercentPower[] = {0,0};
+float percentDelta = 10;
 
 int currentMotor = 1;
 char outputString[64];
@@ -66,7 +69,7 @@ long motors_readEncoder(int motorIndex) {
   } else if (motorIndex == 2) {
     pos = motorEncoderRight.read();
   } else {
-    Serial.println("Error in read encoder: Invalid motor index. Pass 1 for the left motor, and 2 for the right motor.");
+
     return 0;
   }
   posDifference = pos - lastPosition[motorIndex-1];
@@ -78,6 +81,31 @@ float motors_calculateRadsPerSec(long positionDifferenceIn, long timeDifferenceI
   return positionDifferenceIn * .0019635 / (timeDifferenceIn / 1000000.0); // <-- Dividing by 10^6 to convert timeDelta (us) to seconds
 }
 
+int motors_matchSpeed(int sp1, int sp2) {
+  long pd1 = motors_readEncoder(1);
+  long pd2 = motors_readEncoder(2);
+
+  long td1 = motors_getTimeDelta(1);
+  long td2 = motors_getTimeDelta(2);
+
+  float rps1 = motors_calculateRadsPerSec(pd1, td1);
+  float rps2 = motors_calculateRadsPerSec(pd2, td2);
+
+  if(rps1 > rps2) {
+    sp2 += 3;
+  } else if(rps1 < rps2) {
+    sp2 -= 3;
+  }
+
+  Serial.println();
+  Serial.println(sp1);
+  Serial.println(sp2);
+  Serial.println(rps1);
+  Serial.println(rps2);
+
+  return sp2;
+}
+
 float motors_controlsBlockPI(float measuredIn, float desiredIn, long timeDeltaIn, int motorIndex) {
   // Calculate instantaneous and accumulated error
   errorProportional = desiredIn - measuredIn;
@@ -87,18 +115,24 @@ float motors_controlsBlockPI(float measuredIn, float desiredIn, long timeDeltaIn
     errorIntegral[motorIndex-1] = errorIntegralLimit;
   }
   // Calculate percent power to be applied, [-100..100]
-  percentPower = (errorProportional*gainProportional[motorIndex-1] + errorIntegral[motorIndex-1]*gainIntegral[motorIndex-1]) * 100/maxAngularVelocity;
+  percentPower = (errorProportional * gainProportional[motorIndex-1] + errorIntegral[motorIndex-1]*gainIntegral[motorIndex-1]) * 100/maxAngularVelocity;
+
+  if (percentPower > 100) {
+    percentPower = 100;
+  } else if (percentPower < 0) {
+    percentPower = 0;
+  }
   return percentPower;
 }
 
 void motors_updateSpeed(float dutyCycle, int motorIndex) {
-  int motorSpeed = int(1024L * dutyCycle / 100);
+  int motorSpeed = int(400L * dutyCycle / 100);
   if (motorIndex == 1) {
     md.setM1Speed(motorSpeed); // scaling is from +/- 1024. 1024 is cast as long to prevent overflow of int type during intermediary multiplication step
   } else if (motorIndex == 2) {
     md.setM2Speed(-motorSpeed);
   } else {
-    Serial.println("Error in update speed: Invalid motor index. Pass 1 for the left motor, and 2 for the right motor.");
+
   }
 }
 
@@ -108,15 +142,29 @@ void motors_changeCurrentMotor() {
   } else if (currentMotor == 2) {
     currentMotor = 1;
   } else {
-    Serial.println("Invalid currentMotor index in motor_changeCurrentMotor()");
+
+  }
+}
+
+float motors_accelLimit(float percentPowerIn, float previousPercentPowerIn) {
+  if (percentPowerIn > previousPercentPowerIn) {
+    if (percentPowerIn - previousPercentPowerIn > percentDelta) {
+      return previousPercentPowerIn + percentDelta;
+    } else return percentPowerIn;
+  } else {
+    if (previousPercentPowerIn - percentPowerIn > percentDelta) {
+      return previousPercentPowerIn - percentDelta;
+    } else return percentPowerIn;
   }
 }
 
 void motors_setMotorVelocity(int motorIn, float velocityIn) {
-  desiredAngularVelocity[motorIn] = velocityIn;
+  desiredAngularVelocity[motorIn - 1] = velocityIn;
   timeDelta = motors_getTimeDelta(motorIn);
   posDiff = motors_readEncoder(motorIn);
   measuredAngularVelocity = motors_calculateRadsPerSec(posDiff, timeDelta);
-  percentPower = motors_controlsBlockPI(measuredAngularVelocity, desiredAngularVelocity[motorIn], timeDelta, motorIn);
+  float calculatedPercentPower = motors_controlsBlockPI(measuredAngularVelocity, desiredAngularVelocity[motorIn], timeDelta, motorIn);
+  percentPower = motors_accelLimit(calculatedPercentPower, previousPercentPower[motorIn - 1]);
+  previousPercentPower[motorIn-1] = percentPower;
   motors_updateSpeed(percentPower, motorIn);
 }

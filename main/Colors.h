@@ -39,39 +39,19 @@ void colors_init() {
 
   // Initialize APDS-9960 (configure I2C and initial values)
   if ( apds.init() ) {
-    Serial.println(F("APDS-9960 initialization complete"));
+    // Serial.println(F("APDS-9960 initialization complete"));
   } else {
     Serial.println(F("Something went wrong during APDS-9960 init!"));
   }
 
   // Start running the APDS-9960 light sensor (no interrupts)
   if ( apds.enableLightSensor(false) ) {
-    Serial.println(F("Light sensor is now running"));
+    // Serial.println(F("Light sensor is now running"));
   } else {
     Serial.println(F("Something went wrong during light sensor init!"));
   }
 
   delay(500);
-
-  // Adjust the Proximity sensor gain
-  if ( !apds.setProximityGain(PGAIN_2X) ) {
-    Serial.println(F("Something went wrong trying to set PGAIN"));
-  }
-
-  // Set proximity interrupt thresholds
-  if ( !apds.setProximityIntLowThreshold(PROX_INT_LOW) ) {
-    Serial.println(F("Error writing low threshold"));
-  }
-  if ( !apds.setProximityIntHighThreshold(PROX_INT_HIGH) ) {
-    Serial.println(F("Error writing high threshold"));
-  }
-
-  // Start running the APDS-9960 proximity sensor (interrupts)
-  if ( apds.enableProximitySensor(true) ) {
-    Serial.println(F("Proximity sensor is now running"));
-  } else {
-    Serial.println(F("Something went wrong during sensor init!"));
-  }
 
   Serial.println("Color sensor initialized.");
 }
@@ -80,30 +60,27 @@ float colors_getRed() {
   apds.readAmbientLight(ambient_light);
   apds.readRedLight(red_light);
 
-  Serial.print("Reading red: ");
-  Serial.println(red_light);
-
-  return (ambient_light * 1.0) / (red_light * 1.0);
+  return (1.0 * red_light) / (1.0 * ambient_light);
 }
 
 float colors_getGreen() {
   apds.readAmbientLight(ambient_light);
   apds.readGreenLight(green_light);
 
-  Serial.print("Reading green: ");
-  Serial.println(green_light);
-
-  return (ambient_light * 1.0) / (green_light * 1.0);
+  return (1.0 * green_light) / (1.0 * ambient_light);
 }
 
 float colors_getBlue() {
   apds.readAmbientLight(ambient_light);
   apds.readBlueLight(blue_light);
 
-  Serial.print("Reading blue: ");
-  Serial.println(blue_light);
+  return (1.0 * blue_light) / (1.0 * ambient_light);
+}
 
-  return (ambient_light * 1.0) / (blue_light * 1.0);
+int colors_getAmbient() {
+    apds.readAmbientLight(ambient_light);
+
+    return ambient_light;
 }
 
 bool colors_finishLineDetected() {
