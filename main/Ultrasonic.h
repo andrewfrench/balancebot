@@ -5,6 +5,7 @@ Define obstacle detection threshold
 */
 #define OBSTACLE_THRESHOLD 8
 
+// Define pins
 int triggerPin = 5;
 int echoPin = 11;
 volatile long duration;
@@ -24,12 +25,14 @@ void ultrasonic_init() {
 }
 
 long ultrasonic_getDistance() {
+  // Send a trigger pulse
   digitalWrite(triggerPin, LOW);
   delayMicroseconds(5);
   digitalWrite(triggerPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(triggerPin, LOW);
 
+  // Wait for an echo
   duration = pulseIn(echoPin, HIGH);
 
   cm = (duration / 2) / 29.1;
@@ -41,6 +44,7 @@ long ultrasonic_getDistance() {
   return cm;
 }
 
+// Quickly return if we're within the obstacle threshold
 bool ultrasonic_obstacleDetected() {
   return (ultrasonic_getDistance() <= OBSTACLE_THRESHOLD);
 }

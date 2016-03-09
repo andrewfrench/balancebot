@@ -9,10 +9,9 @@ main.ino
 
 The top-level control file.
 
-Ensure that all required libraries are installed on your development machine.
-
  */
 
+// Define global variables here
 int speedLeft = 110;
 int speedRight = 110;
 int maxLeft = 110;
@@ -42,33 +41,33 @@ void setup() {
 }
 
 void loop() {
-
+  // Set the speed as calculated by previous loop
   motors_manualUpdateSpeed(speedLeft, speedRight);
 
+  // Grab color sensor outputs for math below
   float red = colors_getRed();
   float green = colors_getGreen();
   float blue = colors_getBlue();
   int ambient_light = colors_getAmbient();
 
+  // Find color sensor ratios
   float red_ratio = red / green;
   float green_ratio = green / red;
   float blue_red = blue / red;
   float blue_green = blue / green;
 
+  // Determine if stop conditions have been met
   if(blue_red > 1.0 && blue_green > 1.0 && ambient_light > 50) {
     motors_stopRobot();
     while(1);
   }
 
+  // Determine if an object is detected ultrasonically
   if(ultrasonic_obstacleDetected()) {
     motors_stopRobot();
     while(1);
   }
 
-  // if(speedLeft < maxLeft) {
-    // speedLeft += increment * maxLeft;
-    // speedRight += increment * maxRight;
-  // } else {
-    speedRight = motors_matchSpeed(speedLeft, speedRight);
-  // }
+  // Update the speed of the motors
+  speedRight = motors_matchSpeed(speedLeft, speedRight);
 }

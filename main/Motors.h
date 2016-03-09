@@ -8,6 +8,7 @@ DualMC33926MotorShield md;
 Encoder motorEncoderLeft(18, 19); // Corresponds to m1
 Encoder motorEncoderRight(2, 3); // Corresponds to m2
 
+// Initialize motor system
 void motors_init() {
 
   md.init();
@@ -16,12 +17,14 @@ void motors_init() {
 
 }
 
+// A function to set motor speed manually
 void motors_manualUpdateSpeed(int left, int right) {
   right = -right;
   md.setM1Speed(left);
   md.setM2Speed(right);
 }
 
+// Stop the robot by setting speed to 0 on both motors
 void motors_stopRobot() {
   md.setM1Speed(0);
   md.setM2Speed(0);
@@ -53,7 +56,7 @@ float percentDelta = 10;
 int currentMotor = 1;
 char outputString[64];
 
-
+// Find the time since the last time this function was called
 long motors_getTimeDelta(int motorIndex) {
   long timeNow = micros(); // Get current time
   timeDelta = timeNow - timeLast[motorIndex-1]; // Calculate time since last measurement/write
@@ -61,6 +64,7 @@ long motors_getTimeDelta(int motorIndex) {
   return timeDelta;
 }
 
+// Get encoder count difference from motor encoders
 long motors_readEncoder(int motorIndex) {
   long pos;
   long posDifference;
@@ -77,10 +81,12 @@ long motors_readEncoder(int motorIndex) {
   return posDifference;
 }
 
+// Use the encoder difference and time difference to calculate angular velocity
 float motors_calculateRadsPerSec(long positionDifferenceIn, long timeDifferenceIn) {
   return positionDifferenceIn * .0019635 / (timeDifferenceIn / 1000000.0); // <-- Dividing by 10^6 to convert timeDelta (us) to seconds
 }
 
+// Create a dumb motor speed follower
 int motors_matchSpeed(int sp1, int sp2) {
   long pd1 = motors_readEncoder(1);
   long pd2 = motors_readEncoder(2);
@@ -106,6 +112,7 @@ int motors_matchSpeed(int sp1, int sp2) {
   return sp2;
 }
 
+// Controls block for determining motor voltage required for desired speed.
 float motors_controlsBlockPI(float measuredIn, float desiredIn, long timeDeltaIn, int motorIndex) {
   // Calculate instantaneous and accumulated error
   errorProportional = desiredIn - measuredIn;
@@ -125,6 +132,7 @@ float motors_controlsBlockPI(float measuredIn, float desiredIn, long timeDeltaIn
   return percentPower;
 }
 
+// The main-facing function to update the speed semi-directly
 void motors_updateSpeed(float dutyCycle, int motorIndex) {
   int motorSpeed = int(400L * dutyCycle / 100);
   if (motorIndex == 1) {
@@ -136,6 +144,7 @@ void motors_updateSpeed(float dutyCycle, int motorIndex) {
   }
 }
 
+// Not used in current system
 void motors_changeCurrentMotor() {
   if (currentMotor == 1) {
     currentMotor = 2;
@@ -146,6 +155,7 @@ void motors_changeCurrentMotor() {
   }
 }
 
+// Set an acceleration limit
 float motors_accelLimit(float percentPowerIn, float previousPercentPowerIn) {
   if (percentPowerIn > previousPercentPowerIn) {
     if (percentPowerIn - previousPercentPowerIn > percentDelta) {
@@ -158,6 +168,7 @@ float motors_accelLimit(float percentPowerIn, float previousPercentPowerIn) {
   }
 }
 
+// Set the motor velocity using the PI controls block
 void motors_setMotorVelocity(int motorIn, float velocityIn) {
   desiredAngularVelocity[motorIn - 1] = velocityIn;
   timeDelta = motors_getTimeDelta(motorIn);

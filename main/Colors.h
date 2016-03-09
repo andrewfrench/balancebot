@@ -56,6 +56,7 @@ void colors_init() {
   Serial.println("Color sensor initialized.");
 }
 
+// Read the red light
 float colors_getRed() {
   apds.readAmbientLight(ambient_light);
   apds.readRedLight(red_light);
@@ -63,6 +64,7 @@ float colors_getRed() {
   return (1.0 * red_light) / (1.0 * ambient_light);
 }
 
+// Read the green light
 float colors_getGreen() {
   apds.readAmbientLight(ambient_light);
   apds.readGreenLight(green_light);
@@ -70,6 +72,7 @@ float colors_getGreen() {
   return (1.0 * green_light) / (1.0 * ambient_light);
 }
 
+// Read the blue light
 float colors_getBlue() {
   apds.readAmbientLight(ambient_light);
   apds.readBlueLight(blue_light);
@@ -77,6 +80,7 @@ float colors_getBlue() {
   return (1.0 * blue_light) / (1.0 * ambient_light);
 }
 
+// Read the ambient light
 int colors_getAmbient() {
     apds.readAmbientLight(ambient_light);
 
