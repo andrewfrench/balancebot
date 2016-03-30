@@ -3,7 +3,7 @@
 
 class Motors {
   public:
-    Motors(void);
+    Motors(int, int, int, int);
     void manualUpdate(int, int);
     void stopRobot(void);
   private:
@@ -12,9 +12,9 @@ class Motors {
     DualMC33926MotorShield motorShield;
 };
 
-Motors::Motors() {
-  *leftEncoder = Encoder(18, 19);
-  *rightEncoder = Encoder(2, 3);
+Motors::Motors(int lp0, int lp1, int rp0, int rp1) {
+  *leftEncoder = Encoder(lp0, lp1); // Encoder(18, 19);
+  *rightEncoder = Encoder(rp0, rp1); // Encoder(2, 3);
 
   motorShield.init();
   motorShield.setM1Speed(0);

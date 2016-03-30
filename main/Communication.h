@@ -1,7 +1,3 @@
-/*
-   Dec 2014 - TMRh20 - Updated
-   Derived from examples by J. Coliz <maniacbug@ymail.com>
-*/
 /**
  * Example for efficient call-response using ack-payloads
  *
@@ -17,12 +13,14 @@
 
 class Communication {
   public:
-    Communication(void);
+    Communication(int, int);
     byte waitForGo(void);
+    bool send(char *);
+    char * read(void);
   private:
     RF24 * radio;
-    byte * sendAddress;
-    byte * receiveAddress;
+    byte * writeAddress;
+    byte * readAddress;
     bool radioNumber;
     byte counter;
     byte gotByte;
@@ -33,14 +31,13 @@ typedef enum {
   role_pong_back
 } role_e;
 
-Communication::Communication() {
+Communication::Communication(int ce_pin, int cs_pin) {
+  // TODO: Write code to send and receive general data on command.
   Serial.begin(115200);
 
-  *radio = RF24(9, 53);
+  *radio = RF24(ce_pin, cs_pin); // RF24(9, 53);
 
   radioNumber = true;
-
-  generateByteArray()
 
   role_e role = role_pong_back;
 
@@ -52,17 +49,23 @@ Communication::Communication() {
   radio->enableDynamicPayloads();                // Ack payloads are dynamic payloads
 
   if(radioNumber){
-    radio->openWritingPipe(addresses[1]);        // Both radios listen on the same pipes by default, but opposite addresses
-    radio->openReadingPipe(1,addresses[0]);      // Open a reading pipe on address 0, pipe 1
+    radio->openWritingPipe(writeAddress);        // Both radios listen on the same pipes by default, but opposite addresses
+    radio->openReadingPipe(1,readAddress);      // Open a reading pipe on address 0, pipe 1
   }else{
-    radio->openWritingPipe(addresses[0]);
-    radio->openReadingPipe(1,addresses[1]);
+    radio->openWritingPipe(writeAddress);
+    radio->openReadingPipe(1,readAddress);
   }
   radio->startListening();                       // Start listening
 
   radio->writeAckPayload(1,&counter,1);          // Pre-load an ack-paylod into the FIFO buffer for pipe 1
+}
 
+bool Communication::send(char * data) {
+  // Send away telemetry data
+}
 
+char * Communication::read() {
+  // Receive controls data
 }
 
 byte Communication::waitForGo() {

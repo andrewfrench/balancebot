@@ -1,33 +1,27 @@
 #include <NewPing.h>
 
-// Define obstacle detection thresholds and pins
-#define OBSTACLE_THRESHOLD  8
-#define TRIGGER_PIN         5
-#define ECHO_PIN            6
-
 class Ultrasonic {
   public:
-    Ultrasonic(void);
+    Ultrasonic(int, int, int);
     long getDistance(void);
     bool obstacleDetected(void);
   private:
     int triggerPin;
     int echoPin;
+    int obstacleThreshold;
     volatile long duration;
     long cm;
     NewPing * sonar;
 };
 
-Ultrasonic::Ultrasonic() {
-  // Constructor
-
-  triggerPin = TRIGGER_PIN;
-  echoPin = ECHO_PIN;
-
+Ultrasonic::Ultrasonic(int triggerPin, int echoPin, int obsThresh) {
   *sonar = NewPing(echoPin, triggerPin, 200);
 
   pinMode(triggerPin, OUTPUT);
   pinMode(echoPin, INPUT);
+
+  // Set obstacle threshold as passed into constructor
+  obstacleThreshold = obsThresh;
 }
 
 long Ultrasonic::getDistance() {
@@ -47,5 +41,5 @@ long Ultrasonic::getDistance() {
 }
 
 bool Ultrasonic::obstacleDetected() {
-  return (getDistance() <= OBSTACLE_THRESHOLD);
+  return (getDistance() <= obstacleThreshold);
 }
