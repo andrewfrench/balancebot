@@ -37,25 +37,56 @@ The top-level control file.
 #define ACCEL_Z_X4_PIN                 A5
 #define ACCEL_HP_PIN                   2
 
+// Ultrasonic * ultrasonic;
 Accelerometer * accelerometer;
+// Colors * colors;
 Motors * motors;
+
+const double k_p = 0.01;
+const double k_d = 30;
+const double k_i = 0.025;
 
 void setup() {
   Serial.begin(115200);
-  // Communication communication(COMMUNICATION_CE_PIN, COMMUNICATION_CS_PIN);
-  // Ultrasonic ultrasonic(ULTRASONIC_OBSTACLE_THRESHOLD, ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN);
-  // Colors colors(COLORS_FINISH_LINE_THRESHOLD);
+  Serial.println("Running robot.");
+  // communication = new Communication(COMMUNICATION_CE_PIN, COMMUNICATION_CS_PIN);
+  // ultrasonic = new Ultrasonic(ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN, ULTRASONIC_OBSTACLE_THRESHOLD);
+  // colors = new Colors(COLORS_FINISH_LINE_THRESHOLD);
   motors = new Motors(LEFT_ENC_PIN_0, LEFT_ENC_PIN_1, RIGHT_ENC_PIN_0, RIGHT_ENC_PIN_1);
   accelerometer = new Accelerometer(ACCEL_X_X1_PIN, ACCEL_X_X4_PIN, ACCEL_Z_X1_PIN, ACCEL_Z_X4_PIN, ACCEL_HP_PIN);
 }
 
 void loop() {
-  Serial.print("Tu,");
-  Serial.print(micros());
-  Serial.print(",Xa,");
-  Serial.print(accelerometer->getX1());
-  Serial.print(",Za,");
-  Serial.print(accelerometer->getZ1());
-  Serial.print(",Ev,");
-  Serial.print(motors->getLeftEncoderVelocity());
+  accelerometer->tick();
+  double p_value = accelerometer->getPValue();
+  double i_value = accelerometer->getIValue();
+  double d_value = accelerometer->getDValue();
+  double t_diff  = accelerometer->getTimeDiff();
+
+  double control_value = (k_p * p_value) + (k_i * i_value) + (k_d * d_value);
+  if(control_value > 400) {
+    control_value = 400;
+  } else if(control_value < -400) {
+    control_value = -400;
+  }
+
+  Serial.print("V: ");
+  Serial.print(control_value);
+
+  Serial.print(", dT: ");
+  Serial.print(t_diff);
+
+  Serial.print(", P: ");
+  Serial.print(p_value);
+
+  Serial.print(", I: ");
+  Serial.print(i_value);
+
+  Serial.print(", D: ");
+  Serial.print(d_value);
+
+  Serial.print("\n");
+
+  motors->updateSpeeds((int) control_value, (int) control_value);
+
 }

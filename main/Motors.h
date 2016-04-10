@@ -6,10 +6,13 @@
 class Motors {
   public:
     Motors(int, int, int, int);
-    void manualUpdate(int, int);
+    void updateSpeeds(int, int);
+    void fullSpeed(void);
     void stopRobot(void);
     float getLeftEncoderVelocity(void);
     float getRightEncoderVelocity(void);
+    int getLeftEncoderCount(void);
+    int getRightEncoderCount(void);
   private:
     long lastCountLeft;
     long lastCountRight;
@@ -21,8 +24,8 @@ class Motors {
 };
 
 Motors::Motors(int lp0, int lp1, int rp0, int rp1) {
-  *leftEncoder = Encoder(lp0, lp1); // Encoder(18, 19);
-  *rightEncoder = Encoder(rp0, rp1); // Encoder(2, 3);
+  leftEncoder = new Encoder(lp0, lp1); // Encoder(18, 19);
+  rightEncoder = new Encoder(rp0, rp1); // Encoder(2, 3);
 
   lastCountLeft = 0;
   lastCountRight = 0;
@@ -32,16 +35,26 @@ Motors::Motors(int lp0, int lp1, int rp0, int rp1) {
   motorShield.init();
   motorShield.setM1Speed(0);
   motorShield.setM2Speed(0);
+
+  Serial.println("Motors initialized.");
 }
 
-void Motors::manualUpdate(int left, int right) {
+void Motors::updateSpeeds(int left, int right) {
   motorShield.setM1Speed(left);
-  motorShield.setM2Speed(right);
+  motorShield.setM2Speed(-1 * right);
 }
 
 void Motors::stopRobot() {
   motorShield.setM1Speed(0);
   motorShield.setM2Speed(0);
+}
+
+int Motors::getLeftEncoderCount() {
+  return leftEncoder->read();
+}
+
+int Motors::getRightEncoderCount() {
+  return rightEncoder->read();
 }
 
 float Motors::getLeftEncoderVelocity() {
@@ -53,6 +66,9 @@ float Motors::getLeftEncoderVelocity() {
 
   // Get the difference in encoder counts since last reading
   long countDiffLeft = leftCount - lastCountLeft;
+
+  // Replace last count with current count
+  lastCountLeft = leftCount;
 
   // Find the number of revolutions since last reading
   float revsLeft = countDiffLeft / COUNTS_PER_REV;
@@ -82,6 +98,9 @@ float Motors::getRightEncoderVelocity() {
   // Get the difference in encoder counts since last reading
   long countDiffRight = rightCount - lastCountRight;
 
+  // Replace last count with current count
+  lastCountRight = rightCount;
+
   // Find the number of revolutions since last reading
   float revsRight = countDiffRight / COUNTS_PER_REV;
 
@@ -98,4 +117,10 @@ float Motors::getRightEncoderVelocity() {
   float radsPerSecRight = (radsRight / timeDiffRight) * 1000000;
 
   return radsPerSecRight;
+}
+
+void Motors::fullSpeed() {
+  // motorShield.setSpeeds(400, 400);
+  motorShield.setM1Speed(-200);
+  motorShield.setM2Speed(200);
 }

@@ -1,0 +1,3 @@
+const double k_p = 0.01;
+const double k_d = 30;
+const double k_i = 0.025;

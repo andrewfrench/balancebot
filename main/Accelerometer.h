@@ -9,12 +9,25 @@ class Accelerometer {
     int getZ1(void);
     int getX4(void);
     int getZ4(void);
+    double getPValue(void);
+    double getDValue(void);
+    double getIValue(void);
+    double getTimeDiff(void);
+    void tick(void);
   private:
+    void getEValue(void);
+    long currentTime;
+    long lastTime;
+    double timeDiff;
+    long e_value_prev = 0;
+    long e_value = 0;
+    long i_value_prev = 0;
     int xPin1;
     int zPin1;
     int xPin4;
     int zPin4;
     int hpPin;
+    int target;
 };
 
 Accelerometer::Accelerometer(int xp1, int xp4, int zp1, int zp4, int hpp) {
@@ -33,6 +46,60 @@ Accelerometer::Accelerometer(int xp1, int xp4, int zp1, int zp4, int hpp) {
   digitalWrite(hpPin, HIGH);
   delay(500);
   digitalWrite(hpPin, LOW);
+
+  // Found experimentally
+  target = 277;
+
+  // Allow the sensor voltage to rise to steady state
+  delay(2000);
+
+  lastTime = micros();
+}
+
+void Accelerometer::tick() {
+  getEValue();
+}
+
+double Accelerometer::getTimeDiff() {
+  return timeDiff;
+}
+
+double Accelerometer::getPValue() {
+  // P[k] = E[k]
+
+  return e_value;
+}
+
+double Accelerometer::getDValue() {
+  // D[k] = (E[k] - E[k - 1]) / Ts
+
+  return ((1.0 * e_value) - (1.0 * e_value_prev)) / (1.0 * timeDiff);
+}
+
+double Accelerometer::getIValue() {
+  // I[k] = I[k - 1] + E[k] * Ts
+
+  long i_value = i_value_prev + (e_value * timeDiff);
+
+  if(i_value > 20000) {
+    i_value = 20000;
+  } else if (i_value < -20000) {
+    i_value = -20000;
+  }
+
+  i_value_prev = i_value;
+
+  return i_value;
+}
+
+void Accelerometer::getEValue() {
+  e_value_prev = e_value;
+  long reading = getX1();
+  e_value = reading - target;
+
+  currentTime = micros();
+  timeDiff = (currentTime - lastTime) / 1000.0;
+  lastTime = currentTime;
 }
 
 int Accelerometer::getX1() {

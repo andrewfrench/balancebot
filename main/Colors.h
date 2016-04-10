@@ -20,8 +20,8 @@ class Colors {
     uint16_t red;
     uint16_t green;
     uint16_t blue;
-    SparkFun_APDS9960 * sensor;
     float finishLineThreshold;
+    SparkFun_APDS9960 * sensor;
 };
 
 Colors::Colors(float finThresh) {
@@ -43,13 +43,10 @@ Colors::Colors(float finThresh) {
 
   // Start running the APDS-9960 light sensor (no interrupts)
   if ( sensor->enableLightSensor(false) ) {
-    // Serial.println(F("Light sensor is now running"));
+    Serial.println(F("Color sensor initialized."));
   } else {
     Serial.println(F("Something went wrong during light sensor init!"));
   }
-
-  delay(500);
-
 }
 
 int Colors::getRed() {
