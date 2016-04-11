@@ -31,10 +31,11 @@ The top-level control file.
 #define RIGHT_ENC_PIN_1                21
 
 // Define accelerometer configuration values
-#define ACCEL_X_X1_PIN                 A2
-#define ACCEL_X_X4_PIN                 A4
-#define ACCEL_Z_X1_PIN                 A3
-#define ACCEL_Z_X4_PIN                 A5
+// These changed from A2, A4, A3, A5
+#define ACCEL_X_X1_PIN                 A8
+#define ACCEL_X_X4_PIN                 A10
+#define ACCEL_Z_X1_PIN                 A9
+#define ACCEL_Z_X4_PIN                 A11
 #define ACCEL_HP_PIN                   2
 
 // Ultrasonic * ultrasonic;
@@ -42,13 +43,16 @@ Accelerometer * accelerometer;
 // Colors * colors;
 Motors * motors;
 
-const double k_p = 0.01;
-const double k_d = 30;
-const double k_i = 0.025;
+const double k_p = 0.02;
+const double k_d = 40;
+const double k_i = 0.32;
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Running robot.");
+  Serial.println("Waiting five seconds...");
+  delay(5000);
+  Serial.println("Beginning.");
   // communication = new Communication(COMMUNICATION_CE_PIN, COMMUNICATION_CS_PIN);
   // ultrasonic = new Ultrasonic(ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN, ULTRASONIC_OBSTACLE_THRESHOLD);
   // colors = new Colors(COLORS_FINISH_LINE_THRESHOLD);
@@ -63,7 +67,14 @@ void loop() {
   double d_value = accelerometer->getDValue();
   double t_diff  = accelerometer->getTimeDiff();
 
-  double control_value = (k_p * p_value) + (k_i * i_value) + (k_d * d_value);
+  int p_contrib = k_p * p_value;
+  int i_contrib = k_i * i_value;
+  int d_contrib = k_d * d_value;
+
+  float l_count = motors->getLeftEncoderCount();
+  float r_count = -1 * motors->getRightEncoderCount();
+
+  int control_value = p_contrib + i_contrib + d_contrib;
   if(control_value > 400) {
     control_value = 400;
   } else if(control_value < -400) {
@@ -73,20 +84,29 @@ void loop() {
   Serial.print("V: ");
   Serial.print(control_value);
 
-  Serial.print(", dT: ");
+  Serial.print(",   \tdT: ");
   Serial.print(t_diff);
 
-  Serial.print(", P: ");
-  Serial.print(p_value);
+  Serial.print(",   \tP: ");
+  Serial.print(p_contrib);
 
-  Serial.print(", I: ");
-  Serial.print(i_value);
+  Serial.print(",   \tI: ");
+  Serial.print(i_contrib);
 
-  Serial.print(", D: ");
-  Serial.print(d_value);
+  Serial.print(",   \tD: ");
+  Serial.print(d_contrib);
+
+  Serial.print(",   \tL: ");
+  Serial.print(l_count);
+
+  Serial.print(",   \tR: ");
+  Serial.print(r_count);
 
   Serial.print("\n");
 
-  motors->updateSpeeds((int) control_value, (int) control_value);
+  motors->updateSpeeds(control_value, control_value);
 
+  // Serial.print("A: ");
+  // Serial.print(accelerometer->getX1());
+  // Serial.print("\n");
 }

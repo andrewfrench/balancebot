@@ -14,10 +14,12 @@ class Motors {
     int getLeftEncoderCount(void);
     int getRightEncoderCount(void);
   private:
-    long lastCountLeft;
-    long lastCountRight;
-    long lastCountTimeLeft;
-    long lastCountTimeRight;
+    long lastCountLeft = 0;
+    long lastCountRight = 0;
+    long currentTimeLeft = 0;
+    long currentTimeRight = 0;
+    long lastCountTimeLeft = 0;
+    long lastCountTimeRight = 0;
     Encoder * leftEncoder;
     Encoder * rightEncoder;
     DualMC33926MotorShield motorShield;
@@ -40,8 +42,10 @@ Motors::Motors(int lp0, int lp1, int rp0, int rp1) {
 }
 
 void Motors::updateSpeeds(int left, int right) {
-  motorShield.setM1Speed(left);
-  motorShield.setM2Speed(-1 * right);
+  // motorShield.setM1Speed(left);
+  // motorShield.setM2Speed(-1 * right);
+
+  motorShield.setSpeeds(left, -1 * right);
 }
 
 void Motors::stopRobot() {
@@ -59,7 +63,7 @@ int Motors::getRightEncoderCount() {
 
 float Motors::getLeftEncoderVelocity() {
   // Get current reading time [usec]
-  long currentTimeLeft = micros();
+  currentTimeLeft = micros();
 
   // Get current encoder count
   long leftCount = leftEncoder->read();
@@ -71,13 +75,14 @@ float Motors::getLeftEncoderVelocity() {
   lastCountLeft = leftCount;
 
   // Find the number of revolutions since last reading
-  float revsLeft = countDiffLeft / COUNTS_PER_REV;
+  float revsLeft = (1.0 * countDiffLeft) / (1.0 * COUNTS_PER_REV);
 
   // Convert revolutions to radians
   float radsLeft = revsLeft * 2 * 3.1415;
 
   // Find the time difference between readings
   long timeDiffLeft = currentTimeLeft - lastCountTimeLeft;
+
 
   // Replace last time reading with current time reading
   lastCountTimeLeft = currentTimeLeft;
@@ -90,7 +95,7 @@ float Motors::getLeftEncoderVelocity() {
 
 float Motors::getRightEncoderVelocity() {
   // Get current reading time [usec]
-  long currentTimeRight = micros();
+  currentTimeRight = micros();
 
   // Get current encoder count
   long rightCount = rightEncoder->read();
@@ -102,7 +107,7 @@ float Motors::getRightEncoderVelocity() {
   lastCountRight = rightCount;
 
   // Find the number of revolutions since last reading
-  float revsRight = countDiffRight / COUNTS_PER_REV;
+  float revsRight = (1.0 * countDiffRight) / (1.0 * COUNTS_PER_REV);
 
   // Convert revolutions to radians
   float radsRight = revsRight * 2 * 3.1415;

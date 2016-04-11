@@ -15,19 +15,22 @@ class Accelerometer {
     double getTimeDiff(void);
     void tick(void);
   private:
+    void findTarget(void);
     void getEValue(void);
     long currentTime;
     long lastTime;
     double timeDiff;
     long e_value_prev = 0;
     long e_value = 0;
-    long i_value_prev = 0;
+    double d_value = 0;
+    double d_value_prev = 0;
+    double i_value_prev = 0;
     int xPin1;
     int zPin1;
     int xPin4;
     int zPin4;
     int hpPin;
-    int target;
+    long target = 0;
 };
 
 Accelerometer::Accelerometer(int xp1, int xp4, int zp1, int zp4, int hpp) {
@@ -47,13 +50,29 @@ Accelerometer::Accelerometer(int xp1, int xp4, int zp1, int zp4, int hpp) {
   delay(500);
   digitalWrite(hpPin, LOW);
 
-  // Found experimentally
-  target = 277;
-
   // Allow the sensor voltage to rise to steady state
-  delay(2000);
+  delay(1000);
+
+  findTarget();
 
   lastTime = micros();
+}
+
+void Accelerometer::findTarget() {
+  // target = getX1();
+  for(int i = 0; i < 1000; i++) {
+    target += analogRead(xPin1);
+    Serial.print("T: ");
+    Serial.print(target / i);
+    Serial.print("\n");
+  }
+
+  target /= 1000;
+
+  Serial.print("T: ");
+  Serial.print(target);
+  Serial.print("\n");
+
 }
 
 void Accelerometer::tick() {
@@ -72,19 +91,20 @@ double Accelerometer::getPValue() {
 
 double Accelerometer::getDValue() {
   // D[k] = (E[k] - E[k - 1]) / Ts
-
-  return ((1.0 * e_value) - (1.0 * e_value_prev)) / (1.0 * timeDiff);
+  d_value_prev = d_value;
+  d_value = 0.75 * (0.01 * ((1.0 * e_value) - (1.0 * e_value_prev)) / (1.0 * timeDiff)) + (0.99 * d_value_prev);
+  return d_value;
 }
 
 double Accelerometer::getIValue() {
   // I[k] = I[k - 1] + E[k] * Ts
 
-  long i_value = i_value_prev + (e_value * timeDiff);
+  long i_value = 1.5 * (0.02 * (i_value_prev + (e_value * timeDiff))) + (0.98 * i_value_prev);
 
-  if(i_value > 20000) {
-    i_value = 20000;
-  } else if (i_value < -20000) {
-    i_value = -20000;
+  if(i_value > 30000) {
+    i_value = 30000;
+  } else if (i_value < -30000) {
+    i_value = -30000;
   }
 
   i_value_prev = i_value;
@@ -103,7 +123,13 @@ void Accelerometer::getEValue() {
 }
 
 int Accelerometer::getX1() {
-  return analogRead(xPin1);
+  int value = analogRead(xPin1);
+
+  if(value > 2 * target) {
+    value = 2 * target;
+  }
+
+  return value;
 }
 
 int Accelerometer::getZ1() {
