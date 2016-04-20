@@ -3,6 +3,7 @@
 // #include "Colors.h"
 #include "Motors.h"
 #include "Accelerometer.h"
+#include "Controls.h"
 
 /*
 
@@ -42,50 +43,60 @@ The top-level control file.
 Accelerometer * accelerometer;
 // Colors * colors;
 Motors * motors;
+Controls * controls;
 
-const double k_p = 0.02;
-const double k_d = 40;
-const double k_i = 0.32;
+const float k_p = 0.0075;
+const float k_d = 0.01;
+const float k_i = 0.000004;
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Running robot.");
   Serial.println("Waiting five seconds...");
-  delay(5000);
+  delay(3000);
   Serial.println("Beginning.");
   // communication = new Communication(COMMUNICATION_CE_PIN, COMMUNICATION_CS_PIN);
   // ultrasonic = new Ultrasonic(ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN, ULTRASONIC_OBSTACLE_THRESHOLD);
   // colors = new Colors(COLORS_FINISH_LINE_THRESHOLD);
   motors = new Motors(LEFT_ENC_PIN_0, LEFT_ENC_PIN_1, RIGHT_ENC_PIN_0, RIGHT_ENC_PIN_1);
   accelerometer = new Accelerometer(ACCEL_X_X1_PIN, ACCEL_X_X4_PIN, ACCEL_Z_X1_PIN, ACCEL_Z_X4_PIN, ACCEL_HP_PIN);
+  controls = new Controls();
+
+  accelerometer->findTarget();
 }
 
 void loop() {
-  accelerometer->tick();
-  double p_value = accelerometer->getPValue();
-  double i_value = accelerometer->getIValue();
-  double d_value = accelerometer->getDValue();
-  double t_diff  = accelerometer->getTimeDiff();
+  controls->updateAngle(accelerometer->getX1());
+  float p_value = controls->getPValue();
+  float i_value = controls->getIValue();
+  float d_value = controls->getDValue();
+  float t_diff  = controls->getTimeDiff();
 
   int p_contrib = k_p * p_value;
   int i_contrib = k_i * i_value;
   int d_contrib = k_d * d_value;
 
-  float l_count = motors->getLeftEncoderCount();
-  float r_count = -1 * motors->getRightEncoderCount();
-
   int control_value = p_contrib + i_contrib + d_contrib;
+
+  float l_velocity = motors->getLeftEncoderVelocity();
+  float r_velocity = -1 * motors->getRightEncoderVelocity();
+
   if(control_value > 400) {
     control_value = 400;
   } else if(control_value < -400) {
     control_value = -400;
   }
 
-  Serial.print("V: ");
-  Serial.print(control_value);
+  motors->updateSpeeds(control_value, control_value);
 
-  Serial.print(",   \tdT: ");
+  Serial.print("Time [ms]: ");
+  Serial.print(micros() / 1000);
+
+  Serial.print(",   \tdT [ms]: ");
   Serial.print(t_diff);
+
+  Serial.print(",   \tA: ");
+  Serial.print(controls->getAngle());
 
   Serial.print(",   \tP: ");
   Serial.print(p_contrib);
@@ -96,17 +107,14 @@ void loop() {
   Serial.print(",   \tD: ");
   Serial.print(d_contrib);
 
-  Serial.print(",   \tL: ");
-  Serial.print(l_count);
+  Serial.print(",   \tControl: ");
+  Serial.print(control_value);
 
-  Serial.print(",   \tR: ");
-  Serial.print(r_count);
+  Serial.print(",   \tdL [rad/s]: ");
+  Serial.print(l_velocity);
+
+  Serial.print(",   \tdR [rad/s]: ");
+  Serial.print(r_velocity);
 
   Serial.print("\n");
-
-  motors->updateSpeeds(control_value, control_value);
-
-  // Serial.print("A: ");
-  // Serial.print(accelerometer->getX1());
-  // Serial.print("\n");
 }
