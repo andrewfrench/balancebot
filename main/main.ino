@@ -2,7 +2,7 @@
 // #include "Ultrasonic.h"
 // #include "Colors.h"
 #include "Motors.h"
-#include "Accelerometer.h"
+#include "Gyro.h"
 #include "Controls.h"
 
 /*
@@ -31,23 +31,23 @@ The top-level control file.
 #define RIGHT_ENC_PIN_0                20
 #define RIGHT_ENC_PIN_1                21
 
-// Define accelerometer configuration values
+// Define gyro configuration values
 // These changed from A2, A4, A3, A5
-#define ACCEL_X_X1_PIN                 A8
-#define ACCEL_X_X4_PIN                 A10
-#define ACCEL_Z_X1_PIN                 A9
-#define ACCEL_Z_X4_PIN                 A11
-#define ACCEL_HP_PIN                   2
+#define GYRO_X_X1_PIN                 A8
+#define GYRO_X_X4_PIN                 A10
+#define GYRO_Z_X1_PIN                 A9
+#define GYRO_Z_X4_PIN                 A11
+#define GYRO_HP_PIN                   2
 
 // Ultrasonic * ultrasonic;
-Accelerometer * accelerometer;
+Gyro * gyro;
 // Colors * colors;
 Motors * motors;
 Controls * controls;
 
-const float k_p = 0.0075;
-const float k_d = 0.01;
-const float k_i = 0.000004;
+const float k_p = 0.0066;
+const float k_d = 0.06;
+const float k_i = 0.000015;
 
 void setup() {
   Serial.begin(115200);
@@ -59,14 +59,14 @@ void setup() {
   // ultrasonic = new Ultrasonic(ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN, ULTRASONIC_OBSTACLE_THRESHOLD);
   // colors = new Colors(COLORS_FINISH_LINE_THRESHOLD);
   motors = new Motors(LEFT_ENC_PIN_0, LEFT_ENC_PIN_1, RIGHT_ENC_PIN_0, RIGHT_ENC_PIN_1);
-  accelerometer = new Accelerometer(ACCEL_X_X1_PIN, ACCEL_X_X4_PIN, ACCEL_Z_X1_PIN, ACCEL_Z_X4_PIN, ACCEL_HP_PIN);
+  gyro = new Gyro(GYRO_X_X1_PIN, GYRO_X_X4_PIN, GYRO_Z_X1_PIN, GYRO_Z_X4_PIN, GYRO_HP_PIN);
   controls = new Controls();
 
-  accelerometer->findTarget();
+  gyro->findTarget();
 }
 
 void loop() {
-  controls->updateAngle(accelerometer->getX1());
+  controls->updateAngle(gyro->getX1());
   float p_value = controls->getPValue();
   float i_value = controls->getIValue();
   float d_value = controls->getDValue();
@@ -89,8 +89,20 @@ void loop() {
 
   motors->updateSpeeds(control_value, control_value);
 
+  // if(micros() > 20000000) {
+  //   controls->updateTarget(10000);
+  // }
+
   Serial.print("Time [ms]: ");
   Serial.print(micros() / 1000);
+
+
+  Serial.print(",   \tX: ");
+  Serial.print(gyro->getX1());
+
+
+  Serial.print(",   \tA: ");
+  Serial.print(controls->getTarget());
 
   Serial.print(",   \tdT [ms]: ");
   Serial.print(t_diff);
@@ -110,11 +122,12 @@ void loop() {
   Serial.print(",   \tControl: ");
   Serial.print(control_value);
 
-  Serial.print(",   \tdL [rad/s]: ");
-  Serial.print(l_velocity);
-
-  Serial.print(",   \tdR [rad/s]: ");
-  Serial.print(r_velocity);
+  //
+  // Serial.print(",   \tdL [rad/s]: ");
+  // Serial.print(l_velocity);
+  //
+  // Serial.print(",   \tdR [rad/s]: ");
+  // Serial.print(r_velocity);
 
   Serial.print("\n");
 }

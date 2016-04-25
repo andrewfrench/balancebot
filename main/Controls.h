@@ -8,6 +8,8 @@ class Controls {
     void tick(void);
     void updateAngle(int);
     float getAngle(void);
+    void updateTarget(long);
+    long getTarget(void);
   private:
     void updateEValue(void);
     long currentTime;
@@ -18,6 +20,7 @@ class Controls {
     long prevI;
     long currI;
     float prevP;
+    float currP;
     float currE;
     float prevE;
 };
@@ -32,10 +35,19 @@ Controls::Controls() {
   currI = 0;
   prevE = 0;
   prevP = 0;
+  currP = 0;
   currE = 0;
 
   actualAngle = 0;
   targetAngle = 0;
+}
+
+void Controls::updateTarget(long target) {
+  targetAngle = target;
+}
+
+long Controls::getTarget(void) {
+  return targetAngle;
 }
 
 float Controls::getPValue() {
@@ -61,13 +73,18 @@ float Controls::getTimeDiff() {
   return timeDiff;
 }
 
-void Controls::updateAngle(int accelerometerValue) {
+void Controls::updateAngle(int gyroValue) {
+
+  if(abs(gyroValue) < 5) {
+    gyroValue = 0;
+  }
+
   lastTime = currentTime;
   currentTime = micros() / 1000;
 
   timeDiff = currentTime - lastTime;
 
-  actualAngle += accelerometerValue * timeDiff;
+  actualAngle += gyroValue * timeDiff;
 
   updateEValue();
 }

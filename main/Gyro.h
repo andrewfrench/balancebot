@@ -2,9 +2,9 @@
 // Z in A1
 // HP in pin 2
 
-class Accelerometer {
+class Gyro {
   public:
-    Accelerometer(int, int, int, int, int);
+    Gyro(int, int, int, int, int);
     int getX1(void);
     int getZ1(void);
     int getX4(void);
@@ -19,7 +19,7 @@ class Accelerometer {
     long target = 0;
 };
 
-Accelerometer::Accelerometer(int xp1, int xp4, int zp1, int zp4, int hpp) {
+Gyro::Gyro(int xp1, int xp4, int zp1, int zp4, int hpp) {
   xPin1 = xp1;
   zPin1 = zp1;
   xPin4 = xp4;
@@ -40,36 +40,36 @@ Accelerometer::Accelerometer(int xp1, int xp4, int zp1, int zp4, int hpp) {
   delay(1000);
 }
 
-void Accelerometer::findTarget() {
-  // target = getX1();
-  for(int i = 0; i < 1000; i++) {
+void Gyro::findTarget() {
+  int loops = 1000;
+  for(int i = 0; i < loops; i++) {
     target += analogRead(xPin1);
     Serial.print("T: ");
     Serial.print(target / i);
     Serial.print("\n");
   }
 
-  target /= 1000;
+  target /= loops;
 
   Serial.print("T: ");
   Serial.print(target);
   Serial.print("\n");
 }
 
-int Accelerometer::getX1() {
+int Gyro::getX1() {
   int value = analogRead(xPin1) - target;
 
   return value;
 }
 
-int Accelerometer::getZ1() {
+int Gyro::getZ1() {
   return analogRead(zPin1);
 }
 
-int Accelerometer::getX4() {
+int Gyro::getX4() {
   return analogRead(xPin4);
 }
 
-int Accelerometer::getZ4() {
+int Gyro::getZ4() {
   return analogRead(zPin4);
 }
