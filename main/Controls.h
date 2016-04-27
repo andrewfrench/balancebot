@@ -56,7 +56,7 @@ float Controls::getPValue() {
 
 float Controls::getIValue() {
   prevI = currI;
-  currI = (currE * timeDiff) + prevI;
+  currI = 1.02 * ((currE * timeDiff) + prevI);
   return currI;
 }
 
@@ -75,9 +75,9 @@ float Controls::getTimeDiff() {
 
 void Controls::updateAngle(int gyroValue) {
 
-  if(abs(gyroValue) < 5) {
-    gyroValue = 0;
-  }
+  // if(abs(gyroValue) < 5) {
+  //   gyroValue = 0;
+  // }
 
   lastTime = currentTime;
   currentTime = micros() / 1000;
